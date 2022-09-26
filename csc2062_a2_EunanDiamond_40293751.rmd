@@ -1,0 +1,162 @@
+---
+title: 'Assignment 2: Feature Engineering, Statistical Analysis and Machine Learning'
+author: "Eunan Diamond (40293751)"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  word_document: default
+  pdf_document:
+    includes:
+      in_header: preamble.tex
+---
+
+
+# Introduction
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+knitr::read_chunk("Section3_code.R")
+knitr::read_chunk("Section4_code.R")
+```
+## How to Use report
+-Run each chunk in order every time you use this rmd file
+## goals
+The goals for this assignment are to perform feature engineering, statistical analysis, Regression and Machine Learning on a data set of symbols of letters and non letters. Using r, I should develop code, and use my report to clearly show that I understand all the methods I used in each section to explain the results I get from my analysis.
+
+# Section 1
+I created the images using GIMP. After that I used read.delim to read them into R code, and then used then used R code to change the values with 0 (black pixels) to 1 and values with 255 (white pixels) to 0. I then created a matrix with the table we imported in, only from line 3 to last line as first 2 lines were headers, and the matrix has 18 rows and columns. I exported the matrix using write.table. I used separator as “,”  and saved the file as .csv. I did this for all 140 of my images.
+# Section 2
+```{r echo=TRUE}
+source("./section2_code.r")
+```
+For Section 2, I used  one function to create all the features.Using one big function was easier as it made it easier to create the features vector in there and adding it to the matrix which would then be converted to csv file at the end. I converted the csv files to matrices so it would be easier to use for loops and if statements to attain the features I needed. I struggled with the eyes function, I worked around this by converting the 1’s into 0’s and 0’s into ones, this lead the areas of connected 0’s between 1’s using the 4 directions. I then took 2 away from the number of columns in the freq table, as 1 is for none and the other is for connected 0 (the converted 1’s). for my custom feature, I went for number with row with most black pixels as I thought they would help distinguish between symbols as faces would have more than a’s etc. Based on features data this has proved to be the case with the sad and smiley having big largest row of black pixel's. And the ones expected to have less such as ! and a have a lot smaller, I believe this will help me distinguish between symbols in section 3.
+```{r}
+csvF<-read.csv(file ="40293751_features.csv" ,header = TRUE)
+print(csvF)
+```
+
+
+
+# Section 3
+
+## Section 3.1
+```{r  Pr3.1, echo=FALSE,message=FALSE,warning=FALSE}
+```
+
+ Number of rows and cols with 1 blc px can be seen as positvely or right skewed with tail on right side of distribution, this shows there is a similarly between letters and non letters for these and may. For the number of black pixels for letters there is a middle heavy distribution shape, the non letters one is not too dissimilar but also has a bigger range and the populated more distrubuted to the right. for 3 or more black pixels in rows or cols , the distribution is interesting. letters for rows has a right skewed distribution shape where as non letter has middle heavy distribution, showing it has more rows that has 3 or more blc pixels where letters have lot of images which have none or very little, making this a very useful to discriminate between the two.
+For cols it follows a similar pattern as rows. For aspect ratio the distribution shape is almost bell shape for letters and almost has two peaks for non letters with the larger peak on the left side.
+
+## Section 3.2
+```{r  Pr3.2, echo=FALSE,message=FALSE,warning=FALSE}
+```
+Above we can see the summary statistics for the features for letters and non letters. These will help me to see which features are most useful in distinguishing between letters and non letters.
+
+ for no. of black pixels there is a clear difference between letters and non letters. These differences are shown With a difference of 15 between min, 53 between max, this shows there is a big contrast and it could 3 difference in 1be used to distinguish between letters and non letters. 
+
+Between rows and cols with 1 pixels there isn't much difference between letters and non letters, except between max between rows with 14 for letters and 3 for non letters. This does show that these features may not be much use to distinguish between letters and non letters. For rows with 3+ black pixels they are again very similar, with 1 between max the min the same and only 2 between the means, however there is st quarter, but there isn't much difference overall .  The stats tell us, it is expected that letters have more rows and cols with 1 pixel.
+
+For cols with 3+ black pixels, it is very similar to rows with the mean just a bit bigger and 4 difference between max and the same difference of 1st quadrant between rows with 3+ blc pixels.
+
+Aspect ratio for all summary stats are very similar between letters and non letters.
+
+For no. black pixels above the letters and non letters have almost exactly the same summary stats.The rest of the neighouring features, they are not so dissimilar between each other, e.g. for letters no. neighbour above and below the median is 5 for each, as well as non letter for these two with median 17 for letters and 16 for non letters as well as the means being within 0.007 of each other. for Non letters the left and right neighbours have exactly the same values, this shows the relationship between each of the neighbours of the same type. However for not the same type there can be difference, which could help distinguish between letter and non letter, such as above neighbour with 12 difference in median, 9 in the mean and 8 in max. The left and right neighbours features are less useful in distinguishing, with left only have small difference between all the summary stats.. All 4 of the right and left neighbours have near the same values for all summary stats. With the horizontal neighbours, there is a slight difference between letters and non letters, although the min, 1st quadrant are the same with 0, and the median is same as 2, there is a difference in mean of around 3 and 3rd quadrant differs by 6 and the max difference is 13, these differences may mean the horiz neighbours may be used to see differences. In terms of vertical neighbours almost all the summary stats are very similar.
+
+With connected areas, non letters has the slightly bigger stats meaning it probably has more connected areas than letters. The difference is stats is not much as it isn't expected for any one symbol to have a lot of different connected areas. This is similar to eyes but it is significant that non letters have no eyes, meaning eyes can be a big factor in telling if it is a letter or not because if it has an eye it will be a letter. With the final feature, widest row, non letters has bigger for everything, telling us if the wider the row the more like it is to be a non letter.
+
+The 3 features I chose to represent in histograms:
+
+1)number of black pixels because of the summary stats having such a wide difference with non letters having the higher values. it happens to be the case in the histogram, with letters (blue) having a  high proportion in below 50. some of non letters fall below that range as well, but there is high number over 50, going the whole way to over 100.
+
+2) No. Black pixels in above neighbour. I chose this as there was I big difference between the two in  the summary stats and I think that will make it useful to distinguish between letters and non letters. And as expected from the summary stats the non letters (green) have far higher values. with letters having no image which has more than 20 pixels than have no pixels above when non letters have about 7 over 20 and up to 30, as well as having the majority over 15 pixels. this illustrate shows why it is a good feature to use.
+
+3)Eyes. This is based off the fact that non letters has no eyes, . As see all the non letters are at 0, as well as about the 32 letter images which have an eye. No images has an more than 1 eye, so therefore if a image has an eye we know it is 100% a letter.Therefore this will be a key feature in finding a difference.
+
+## Section 3.3
+ I will use statistical Analysis techniques to test if this which features are useful in  telling difference between letter and non letters. After my analysis I will interpret my findings and validity my assumptions. I expect there will be features which will stand. I am making these assumptions based off the first two parts of section 3.
+
+To start my analysis I calculated the skews for each feature for letters and non letters. I felt like this was a good stat to analysis as it will give me an idea of the distribution for letters and non letters for each feature.
+
+```{r}
+ skewStats<-read.csv(file ="SkewStats.csv" ,header = TRUE)
+ print(skewStats)
+```
+ As shown above is the table of the skews for letters and non letters for each feature. I believe if the skews differ a lot between letters and non letters it could be a factor in telling if the feature can be used to tell difference between letters hand non letters.
+
+To start number of black pixels skew differs between letters and non letters. letters is only moderately skewed with 0.4 whereas non letters is highly skewed with 1.7, this shows the distribution shape is massively difference. This supports our summary stats as this was one of the features I had suggested that could be used to differ between the two. 
+
+With The 1 black pixel in cols and rows there is a big difference in skews again. With rows having 1.2 difference, both having a highly skewed, this tells us that they both have a high count in the smaller values, such as 0, which was proven to be the case in 3.1, Cols is very similar.
+
+for  3+ rows and cols for both letters and non letters the skews are very similar with both of them having approximately symmetric skew with around 0.5. Therefore these features do not differ much and would not be a good measure to find difference based on their skews.
+
+For aspect ratio there is a 0.9 difference. for letters it approximately symmetric skew with around 0.5 as well as is non letters but with high values.Therefore this could be used to say there is a difference between letters and non letters.
+
+for 1 black pixel neighbour it supports the summary stats where the  they were very similar between letters and non letters.
+
+In terms of the above and below neighs with no black pixels,the skews are very different for both , as expected based off summary stats,  the above one 1.3 difference in skews and below 1.8, this again strengths these features can be used to tell difference between letters and non letters.
+
+for left and right neighbours no black pixels, they are very similar with skews in a range of 0.3(letters) and 0.17(non letters) for left and -0.28(letters) and 0.17(non letters). Therefore as the same as summary stats these are suggested.
+
+For horiz neighbours there is only 0.3 between skewness meaning there distribution is similar therefore it can not be used. The same can not be said for vert.
+
+for Connected areas there is a massive difference of 1.8, telling us that the shape of population distribution is massively difference between letters and non letters for this feature.
+
+For eyes as expected based off summary stats, non letters will have no skewness because all values are 0, while letters are 0.4, this shown on the summary stats. The fact it has no Skewness, makes it a key feature in telling the difference as stated in the summary stats section
+
+For the row with most black pixels there is a difference of 1.2 skewness. With letters having 0.6, meaning it has more values which are smaller where as non letters has -0.8 meaning it has more values which are higher making it's skewness towards left side of the graph. Meaning these could be used to differ between the two.
+
+In next part of my analysis I will use box plots and T-tests to see if the analysis I have shown before with the skews and summary stats are proven to be correct.
+```{r  Pr3.3, echo=FALSE,message=FALSE,warning=FALSE}
+```
+
+Above you can see the boxplots, which I have decided to use to further validate my early findings. It graphically shows which features differ for letters and non letters, such as first feature number of black pixels. Which with my early findings I found to be be a feature that could be used to differ between letters and non letters, these box plots shows the difference in ranges, and they may not be so different as first expected with only a few massive valeus for non letters which may of helped raised the mean, but the overall range isn't too different to different between the two. and 
+With eyes, this shows graphically what the skews showed, that all non letters have no eyes, as everything is 0 for it in the boxplot, this is not the same for letters, therefore it  shows us what we assumed previously.
+
+
+I think these box plots has helped to further prove the difference or similarities between letters and non letters for each feature. As mean is not included I will now use T-tests to test the mean between letters and non letters for each feature and come to a conclusion which features are most useful in terms of telling the difference between the letters and non letters. I will use welch t-tests as the populations are not the same size to do paired t tests.
+
+T-tests are good for statistical analyses as it's used to compare the means of two groups, which is perfect for the analysis we want to perform. There is null hypothesis and alternative hypothesis. The null hypothesis is the difference in group means is zero and the alternative hypothesis is the difference in group means is different from zero. It is used to test if there is a difference between two groups. It also calculates a p value. A p value is the probability that the results from your data occurred by chance.  They range from 0% to 1% and written in  decimal. If the p value is less than 0.05 it is strongly significant. It indicates strong evidence against the null hypothesis, as there is less than a 5% probability the null is correct (and the results are random). Therefore, we reject the null hypothesis, and accept the alternative hypothesis. A p-value higher than 0.05  is not statistically significant and indicates strong evidence for the null hypothesis.  Therefore the p value can be used to help us verify our assumptions, As you can see from the t-tests the p values are behind 5% for all them except for feature 7, 1 black pixel neighbour with 8.687% and feature 13 vert no black pixel neighbour with 8.8%. This tells us that there is a significant difference between letters and non letters for the rest of the features. The t-test shows differences in means which tell us that there is a difference between letters and non letters. The biggest difference in mean is 15.4 for feature 1, which backs up our earlier summary which suggested that it would be a good feature to tell difference. Feature 8 no_neigh_above has a mean difference of 8.95 between letters and non letters which backs up earlier analysis which suggested it was a good feature to tell difference, the same can be said for no_neigh_below, which difference in mean is about 8.3. As you can see above the means differ slightly between other features which have a signicant difference between means but based off the t tests as well as the box plots and skews I believe these 3 features are the best suited to tell the difference between letters and non letters as well as eyes because it's all 0's for non letters.
+## Section 3.4
+```{r}
+ cors<-read.csv(file ="correlations.csv" ,header = TRUE)
+ print(cors)
+```
+For this part, I used the cor function in r, which calculates a value between -1 and 1, values close to -1 mean a negative correlation between two features and a value near 1 means a positive correlation between the two features.
+
+In the table above it shows all the correlations between each of the feauteres. There isn't many negative correlations with the biggest being -0.553150627 between number of black pixels and and no black pixels horiz neighbours, but this isn't a big enough correlation to document as a degree of linear assosciation.
+
+Through this analysis I found 14 significant degrees of correlation and this and shown below in scatter graphs to prove the relationships between the features. The highest cor value was 0.973310298355819 with no neighbour above and no neighbour left.
+```{r  Pr3.4, echo=FALSE,message=FALSE,warning=FALSE}
+```
+As you can see with the first graph the correlation of 0.79119224	is clearly shown in the scatter plot as for the most part the bigger the number of black pixels the more rows with 3+ black pixels you have. I believe this is because the more black pixels you have, the more you will have on each row, therefore you are more likely to have 3+ on each row, meaning that there is a positive correlation and a clear degree of linear association between the two.
+
+For the second graph, rows with 1 black pixel and and no black pixel neighbour horiz, the correlation is less than define but still sigincant with 0.742534541, there are a number of plots which go against the correlation as seen in graph above with highest rows with 1 black pixel coming in at around 7 no neigh horiz which is about half way through it's range, but overall there is a degree of linear assoication between the feauteres, I think this is the case because if it is a row with 1 black pixel it is expected to not have any neighbours horiz as that would therefore be on the same row as them, but what lets this degree of linear association down is the fact that the black pixel on same row could not be a horiz neighbour to a black pixel, which of course the no black pixel horiz neighbour does not calculate.
+
+For the 4th scatter plot, between widest black pixel row and cols with 3+ black pixel, it is clear by just looking at the scatter plot distrubution there is a degree of linear assosciation between the two, this is the case as the wider the row the more like there is to be more rows and cols like that, e.g. over 3+ black pixels hence giving a lot of 3+ black pixel cols, the graph clearly shows this 
+
+In terms of the aspect ratio scatter plots, it has a lot of features which it has a high degree of linear association with, these are cols with 3+ which has 0.79054621	cor value, no neigh above 0.8742152	cor value , no neigh below cor value 0.87366851	and widest row with black pixel 0.90665137 cor value. These plots are shown above and expected out of all them row with most black pixels and aspect ratio has the most significant distributions to show a degree of linear association, this is expected as because it uses the leftmost and rightmost black pixel and using the widest row therefore, this row that the custom feature is finding, therefore there is a significant association between the two.
+
+The 10th scatter plot, is the highest degree of linear association between all the features, and looking at the scatter graph this is the case, as the distribution is nearly a perfect diagonal line and certainly the most perfect distribution we see out of these scatter plots as expected from the cor value. This relationship is so significant, because if a black pixel does not have above it, it could mean there is another black pixel with the same pixel space that does have a below neighbour.
+
+For the second last feature, the left and right no black pixel has a cor value of 0.859115751. The significant degree of linear association is clear in the scatter plot, with the distrubution pattern showing that there is a relationship to the two, and it is simple why there. If a black pixel does not have a left neighbours another black pixel near it will not have a right neighbours, and vice versa leading to this relationship
+
+For the last feature the cor is 0.742534541 between rows with 1 black pixel and no neigh horiz, one of the smallest value for the significant correlations and this is clear on the scatter plot as the distribution does not show one of relationship between the two, although there is a high cor value for the two, they may not have a high degree of linear association between the two features. 
+
+To conclude I believe I have highlighted the most significant relationships and provided scatter plots which I have used to describe why there may be a degree of linear association between the two features.
+
+# Section 4
+
+## Section 4.1
+
+```{r Pr4.1, echo=FALSE, message=FALSE, warning=FALSE}
+```
+
+## Section 4.2
+
+```{r  Pr4.2, echo=FALSE,message=FALSE,warning=FALSE}
+```
+The results are shown on the graph above as well as the accuracy of the  model. The plot shows that the lower the no_neigh_above the more chance it is a letter. Based on the predictions I did of 5 10 20, which came out as 0.83..., 0.57... and 0.0883... respectfully, this is proven to be the case on the plot. It is 81.25% accurate for training data and 78.57% for test data, It is expected that training data is higher % as it was used to fit the model.
+
+## Section 4.3 and 4.4
+```{r  Pr4.3&4, echo=FALSE,message=FALSE,warning=FALSE}
+```
+For 4.4 the results for the naive bayes classifer is shown above for 1 for all 3 splits and then 0 for all 3. faces has the most chance of having above median for all 3 with 1.026786% and xclaim has lowest for all 1s with 0, as it has aspect ratio above the median. For 0s for all 3, letters having most chance with  1.011719%. The least chance is faces with 0, as all it's values for aspect ratio are bigger than the median, therefore it is not possible for faces to have any images with all 0's.
